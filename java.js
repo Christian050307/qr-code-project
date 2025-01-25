@@ -1,3 +1,6 @@
+function validateInput(name, grade, section) {
+    return name.trim() !== '' && /^[A-Za-z0-9]+$/.test(grade) && /^[A-Za-z0-9]+$/.test(section);
+}
 document.getElementById('attendanceForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
