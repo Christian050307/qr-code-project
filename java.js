@@ -43,4 +43,19 @@ function displayAttendance() {
         const absent = attendanceData[date].absent.join(', ');
         attendanceList.innerHTML += `<p>${date}: Present - ${present}, Absent - ${absent}</p>`;
     }
+async function submitAttendance(attendanceData) {
+    const response = await fetch('https://your-backend-url.com/api/attendance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(attendanceData),
+    });
+
+    if (response.ok) {
+        console.log('Attendance submitted successfully');
+    } else {
+        console.error('Error submitting attendance');
+    }
+}
 }
