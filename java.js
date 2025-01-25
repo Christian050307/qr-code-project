@@ -1,40 +1,18 @@
-function validateInput(name, grade, section) {
-    return name.trim() !== '' && /^[A-Za-z0-9]+$/.test(grade) && /^[A-Za-z0-9]+$/.test(section);
-}
-document.getElementById('attendanceForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
+document.getElementById('attendanceForm').addEventListener('submit', function(event) {
+    event.preventDefault();
     const name = document.getElementById('name').value;
     const grade = document.getElementById('grade').value;
     const section = document.getElementById('section').value;
 
-    // Generate QR Code
-    const data = JSON.stringify({ name, grade, section });
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data)}`;
+    const attendanceData = { name, grade, section };
+    const qrCodeData = JSON.stringify(attendanceData);
 
-    document.getElementById('qrcode').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
-
-    // Store attendance record in local storage
-    const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
-    attendanceRecords.push({ name, grade, section });
-    localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-
-    // Update attendance list
-    updateAttendanceList();
-});
-
-// Function to update attendance list
-function updateAttendanceList() {
-    const attendanceList = document.getElementById('attendanceList');
-    attendanceList.innerHTML = '';
-
-    const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
-    attendanceRecords.forEach(record => {
-        const li = document.createElement('li');
-        li.textContent = `${record.name} - Grade: ${record.grade}, Section: ${record.section}`;
-        attendanceList.appendChild(li);
+    const qr = new QRious({
+        element: document.createElement('canvas'),
+        value: qrCodeData,
+        size: 200
     });
-}
 
-// Load attendance records on page load
-document.addEventListener('DOMContentLoaded', updateAttendanceList);
+    document.getElementById('qrCode').innerHTML = '';
+    document.getElementById('qrCode').appendChild(qr.canvas);
+});
