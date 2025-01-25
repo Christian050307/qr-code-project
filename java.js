@@ -1,31 +1,37 @@
-$(document).ready(function() {
-    $('#qrForm').on('submit', function(event) {
-        event.preventDefault();
+document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        // Get form values
-        const name = $('#name').val();
-        const section = $('#section').val();
-        const grade = $('#grade').val();
-        const imageFile = $('#image')[0].files[0];
+    const name = document.getElementById('name').value;
+    const grade = document.getElementById('grade').value;
+    const section = document.getElementById('section').value;
 
-        // Create a data string for the QR code
-        const qrData = `Name: ${name}, Section: ${section}, Grade: ${grade}`;
+    // Generate QR Code
+    const data = JSON.stringify({ name, grade, section });
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data)}`;
 
-        // Clear previous QR code and image
-        $('#qrCodeContainer').empty();
+    document.getElementById('qrcode').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
 
-        // Generate QR code
-        $('#qrCodeContainer').qrcode({
-            text: qrData,
-            width: 128,
-            height: 128
-        });
+    // Store attendance record in local storage
+    const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
+    attendanceRecords.push({ name, grade, section });
+    localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
 
-        // Optionally, display the uploaded image
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            $('#qrCodeContainer').append(`<img src="${e.target.result}" alt="Uploaded Image" style="margin-top: 20px; max-width: 100%; height: auto;">`);
-        };
-        reader.readAsDataURL(imageFile);
-    });
+    // Update attendance list
+    updateAttendanceList();
 });
+
+// Function to update attendance list
+function updateAttendanceList() {
+    const attendanceList = document.getElementById('attendanceList');
+    attendanceList.innerHTML = '';
+
+    const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || [];
+    attendanceRecords.forEach(record => {
+        const li = document.createElement('li');
+        li.textContent = `${record.name} - Grade: ${record.grade}, Section: ${record.section}`;
+        attendanceList.appendChild(li);
+    });
+}
+
+// Load attendance records on page load
+document.addEventListener('DOMContentLoaded', updateAttendanceList);
